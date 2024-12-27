@@ -40,7 +40,7 @@ exports.createExamClassroom = async (req, res) => {
 };
 
 exports.deleteExamClassroom = async (req, res) => {
-    const { exam_id } = req.params; 
+    const { exam_id, class_id } = req.params; 
 
     try {
         // Xóa các câu trả lời
@@ -50,7 +50,7 @@ exports.deleteExamClassroom = async (req, res) => {
         await Question.deleteQuestionsByExamId(exam_id);
 
         // Xóa bài kiểm tra
-        await Exam.deleteExam(exam_id);
+        await Exam.deleteExam(exam_id, class_id);
 
         res.status(200).json({ message: 'Xóa bài kiểm tra thành công' });
     } catch (err) {

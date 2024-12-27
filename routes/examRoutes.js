@@ -14,7 +14,7 @@ router.get('/class1/:class_id', examController.getExamsByClass);
 router.get('/class2/:class_id', examController.getAllExamsByClass);
 
 // Xóa bài kiểm tra
-router.delete('/delete/:exam_id', examController.deleteExamClassroom);
+router.delete('/delete/:exam_id/:class_id', examController.deleteExamClassroom);
 
 // Cập nhật trạng thái bài kiểm tra (ẩn hoặc bỏ ẩn)
 router.put('/visibility/:exam_id/:status', examController.updateExamVisibility);
