@@ -1,6 +1,8 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require("fs");
+const https = require("https");
 require('dotenv').config();
 
 const authRoutes = require('./routes/authRoutes');
@@ -20,7 +22,20 @@ app.use('/api/classrooms', classroomRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/history', historyRoutes);
 
+// HTTPS Configuration
+const key = fs.readFileSync("key.pem");
+const cert = fs.readFileSync("cert.pem");
+
+const httpsOptions = {key,cert,};
+
+// Start HTTPS server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`HTTPS Server is running on https://localhost:${PORT}`);
 });
+
+
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT}`);
+// });

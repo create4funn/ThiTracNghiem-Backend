@@ -17,7 +17,7 @@ class User {
     }
 
     static async findById(id) {
-        const [rows] = await db.query('SELECT user_id, username, email, phone, password FROM users WHERE user_id = ?', [id]);
+        const [rows] = await db.query('SELECT user_id, username, email, phone FROM users WHERE user_id = ?', [id]);
         return rows[0];
     }
 
@@ -33,8 +33,7 @@ class User {
         return rows[0].fcm_token;
     }
 
-    static async updateUser(user_id, user) {
-        const { username, email, phone } = user;
+    static async updateUser(user_id, username, email, phone) {
         const [result] = await db.query(
             'UPDATE users SET username = ?, email = ?, phone = ? WHERE user_id = ?',
             [username, email, phone, user_id]
@@ -49,6 +48,28 @@ class User {
         );
         return result;
     }
+
+
+    static async saveOTP(user_id, otp_code, expires_at) {
+        const [result] = await db.query(
+            'INSERT INTO otp_requests (user_id, otp_code, expires_at) VALUES (?, ?, ?)',
+            [user_id, otp_code, expires_at]
+        );
+        return result.insertId;
+    }
+    
+    static async findOTPByUserId(user_id) {
+        const [rows] = await db.query(
+            'SELECT * FROM otp_requests WHERE user_id = ? ORDER BY expires_at DESC LIMIT 1',
+            [user_id]
+        );
+        return rows[0];
+    }
+    
+    static async deleteOTP(user_id) {
+        await db.query('DELETE FROM otp_requests WHERE user_id = ?', [user_id]);
+    }
+    
     
 }
 

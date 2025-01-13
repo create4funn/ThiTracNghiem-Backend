@@ -4,11 +4,17 @@ const Answer = require('../models/answerModel');
 const Classroom = require('../models/classroomModel');
 const User = require('../models/userModel');
 const { newExamNoti } = require('../firebase');
+const { encrypt, decrypt } = require('../Utils/aesUtils.js');
 
 exports.createExamClassroom = async (req, res) => {
-    const { exam_name, class_id, subject_id, duration, numOfQues, pdf, questions } = req.body;
+    let { exam_name, class_id, subject_id, duration, numOfQues, pdf, questions } = req.body;
 
     try {
+        
+        if(pdf != null){
+            pdf = encrypt(pdf);
+        }
+        
         // Tạo bài kiểm tra mới
         const exam_id = await Exam.createExam({ exam_name, class_id, subject_id, duration, numOfQues, pdf });
 
@@ -75,8 +81,15 @@ exports.getExamsByClass = async (req, res) => {
 
     try {
         const exams = await Exam.getExamsByClass(class_id);
+        // Giải mã trường pdf cho từng bài kiểm tra
+        for (const exam of exams) {
+            if (exam.pdf != null) {
+                exam.pdf = decrypt(exam.pdf); 
+            }
+        }
         res.status(200).json(exams);
     } catch (err) {
+        console.log(err);
         res.status(500).json({ message: 'Có lỗi xảy ra', error: err.message });
     }
 };
@@ -86,6 +99,12 @@ exports.getAllExamsByClass = async (req, res) => {
 
     try {
         const exams = await Exam.getAllExamsByClass(class_id);
+        // Giải mã trường pdf cho từng bài kiểm tra
+        for (const exam of exams) {
+            if (exam.pdf != null) {
+                exam.pdf = decrypt(exam.pdf); 
+            }
+        }
         res.status(200).json(exams);
     } catch (err) {
         res.status(500).json({ message: 'Có lỗi xảy ra', error: err.message });
@@ -112,9 +131,12 @@ exports.updateExamVisibility = async (req, res) => {
 
 exports.updateExamClassroom = async (req, res) => {
     const { exam_id } = req.params;
-    const { exam_name, duration, numOfQues, pdf, questions } = req.body;
+    let { exam_name, duration, numOfQues, pdf, questions } = req.body;
 
     try {
+        if(pdf != null){
+            pdf = encrypt(pdf);
+        }
         // Cập nhật thông tin bài kiểm tra
         await Exam.updateExam(exam_id, exam_name, duration, numOfQues, pdf);
 
